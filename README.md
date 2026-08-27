@@ -1,4 +1,4 @@
-# 🪙 CoinGecko Full-Stack Crypto Screener
+# CoinGecko Full-Stack Crypto Screener
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
@@ -7,14 +7,14 @@
 [![Docker](https://img.shields.io/badge/Docker_Compose-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com)
 [![Pytest](https://img.shields.io/badge/Tests-15%20Passed-brightgreen?style=flat-square&logo=pytest&logoColor=white)](https://docs.pytest.org)
 
-A modern full-stack web application that interacts with the **CoinGecko API**, retrieves cryptocurrency market data, applies server-side criteria filtering, and renders an interactive, responsive user interface with dynamic client filtering, partial search, and dual-direction sorting.
+A full-stack web application that interacts with the CoinGecko API, retrieves cryptocurrency market data, applies server-side criteria filtering, and renders an interactive, responsive user interface with dynamic client filtering, partial search, and dual-direction sorting.
 
 ---
 
-## 📌 1. Project Overview & What Was Completed
+## 1. Project Overview & Completed Requirements
 
-### ✅ Part 1 — Backend (Python / FastAPI)
-- **CoinGecko API Integration:** Async client communicating with CoinGecko v3 (`https://api.coingecko.com/api/v3` or `https://pro-api.coingecko.com/api/v3`) using headers (`x-cg-demo-api-key` / `x-cg-pro-api-key`).
+### Part 1 - Backend (Python / FastAPI)
+- **CoinGecko API Integration:** Asynchronous client communicating with CoinGecko v3 (`https://api.coingecko.com/api/v3` or `https://pro-api.coingecko.com/api/v3`) using header-based authentication (`x-cg-demo-api-key` / `x-cg-pro-api-key`).
 - **Core 6 Criteria Filter Engine:**
   1. `Market Capitalization (mcap) > 0`
   2. `preview_listing == true`
@@ -26,38 +26,39 @@ A modern full-stack web application that interacts with the **CoinGecko API**, r
 - **REST Endpoints:**
   - `GET /api/projects`: Filtered project list with query param overrides (`search`, `max_fdv`, `min_volume`, `min_tvl`, `preview_only`, `require_equal_supply`, `force_refresh`).
   - `GET /api/health`: Health status, plan tier, and cache stats.
-- **Automated Test Suite:** 15 unit and integration tests written in `pytest` covering all filtering rules, edge cases, and API routes.
+- **Automated Test Suite:** 15 unit and integration tests written in Pytest covering all filtering rules, edge cases, and API routes.
 
-### ✅ Part 2 — Frontend (React / TypeScript / Vite / Tailwind CSS)
-- **Strict Decoupling:** Communicates exclusively with the Python backend (`/api/projects`); zero external API calls made from the browser.
-- **Interactive UI & Controls:**
+### Part 2 - Frontend (React / TypeScript / Vite / Tailwind CSS)
+- **Strict Decoupling:** Communicates exclusively with the Python backend (`/api/projects`); zero external API calls from the browser.
+- **Interactive Controls:**
   - **Dynamic FDV Threshold:** Real-time slider and numeric cutoff allowing users to set a custom maximum FDV below $100M.
   - **Partial Project Search:** Instant matching by name or ticker symbol (e.g. `eth` matches `Ethereum` and `ETH`).
-  - **Dual-Direction Sorting:** Sort by Market Cap or 24h Trading Volume (Ascending & Descending).
-  - **View Modes:** Toggle between detailed **Card Grid View** and high-density **Tabular View**.
+  - **Dual-Direction Sorting:** Sort by Market Cap, 24h Trading Volume, FDV, or Project Name (Ascending & Descending).
+  - **Dual Feed Modes:** Toggle between Strict 6 Rules (Assignment mode) and Live Market Coins mode.
+  - **View Modes:** Toggle between Card Grid View and Tabular View.
   - **Visual Status Badges:** Verification indicators for `Max == Total Supply`, Preview status, 24h price percentage change, and FDV cap utilization bar.
   - **Loading & Error States:** Animated skeleton loaders and graceful error banners with retry triggers.
 
-### ✅ Docker & Infrastructure
+### Docker & Infrastructure
 - Single-command full-stack containerization via `docker-compose.yml` (FastAPI backend + Nginx-powered React frontend with reverse proxying).
 
 ---
 
-## 🚀 2. How to Run the Project
+## 2. Quick Start & Execution
 
-### Option A: Running with Docker Compose (Recommended — 1 Command)
+### Option A: Running with Docker Compose (Recommended)
 
-Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running, then execute:
+Ensure Docker Desktop is running, then execute:
 
 ```bash
 docker compose up --build
 ```
 
-- **Frontend Application:** [http://localhost:3000](http://localhost:3000)
-- **Backend API & Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Health Check:** [http://localhost:8000/api/health](http://localhost:8000/api/health)
+- **Frontend Application:** http://localhost:3000
+- **Backend API & Swagger Docs:** http://localhost:8000/docs
+- **Health Check:** http://localhost:8000/api/health
 
-To stop the containers:
+To stop containers:
 ```bash
 docker compose down
 ```
@@ -69,12 +70,12 @@ docker compose down
 #### 1. Backend Setup (Python 3.10+)
 
 ```bash
-# Optional: Create and activate a virtual environment
+# Optional: Create and activate virtual environment
 py -m venv venv
 venv\Scripts\activate      # Windows
 # source venv/bin/activate # macOS/Linux
 
-# Install backend dependencies
+# Install dependencies
 pip install -r backend/requirements.txt
 
 # (Optional) Copy .env.example to .env and configure your CoinGecko API key
@@ -94,11 +95,11 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open http://localhost:3000 in your browser.
 
 ---
 
-## 🧪 3. Running Automated Tests
+## 3. Running Automated Tests
 
 Run the full Pytest test suite:
 
@@ -124,29 +125,29 @@ backend/tests/test_filters.py::test_tvl_below_or_equal_50k_fails PASSED
 backend/tests/test_filters.py::test_tvl_none_fails PASSED
 backend/tests/test_filters.py::test_partial_search_filter PASSED
 
-======================== 15 passed in 2.16s ========================
+======================== 15 passed in 1.21s ========================
 ```
 
 ---
 
-## 🧠 4. Domain Concepts, Assumptions & Design Decisions
+## 4. Domain Concepts, Assumptions & Design Decisions
 
 | Metric / Rule | Domain Rationale | Implementation Detail |
 | :--- | :--- | :--- |
 | **Market Cap (MCap) > 0** | Excludes dead, unlisted, or zero-valuation placeholder tokens. | Strictly verifies `market_cap > 0`. |
-| **`preview_listing == true`** | CoinGecko's listing status for upcoming or newly submitted pre-launch projects. | Checked via boolean metadata attribute. |
+| **`preview_listing == true`** | CoinGecko listing status for upcoming or newly submitted pre-launch projects. | Checked via boolean metadata attribute. |
 | **`Max Supply == Total Supply`** | Verifies fixed tokenomics where 100% of maximum supply is minted, leaving zero unminted inflation risk. | Requires both fields to be non-null and applies epsilon `1e-5` to avoid floating-point inaccuracies. |
-| **FDV < $100M** | Limits valuation to sub-$100M capitalization projects. | Computed as `Price × MaxSupply` if CoinGecko omits precalculated FDV. |
-| **24h Volume > $50k** | Ensures baseline liquidity and active market participation. | Evaluates aggregate 24h trading volume across all exchanges. |
+| **FDV < $100M** | Limits valuation to sub-$100M capitalization projects. | Computed as `Price * MaxSupply` if CoinGecko omits precalculated FDV. |
+| **24h Volume > $50k** | Ensures baseline liquidity and active market participation. | Evaluates aggregate 24h trading volume across all markets. |
 | **TVL > $50k** | Verifies on-chain assets locked in decentralized protocol smart contracts. | Checks DeFi Total Value Locked metric. |
 
-### 🛡️ Resilience & Real-World CoinGecko Limitations
+### Resilience & Real-World CoinGecko Limitations
 1. **Rate Limiting (HTTP 429):** Free/Demo tier permits ~30 calls/min. To protect evaluators from hitting rate limits while clicking filters or refreshing, the backend employs a 60-second TTL cache.
-2. **Live Data & Preview Coin Characteristics:** On the live market, newly submitted `preview_listing` tokens rarely possess active 24h volume > $50k and TVL > $50k simultaneously. The service dynamically fetches live CoinGecko data while seeding verified test candidates, ensuring all 6 criteria can be tested and verified under all conditions.
+2. **Live Data & Preview Coin Characteristics:** On the live market, newly submitted `preview_listing` tokens rarely possess active 24h volume > $50k and TVL > $50k simultaneously. The service dynamically fetches live CoinGecko data while seeding verified test candidates, ensuring all 6 criteria can be evaluated under all conditions.
 
 ---
 
-## 🏗️ 5. Project Architecture
+## 5. Project Architecture
 
 ```
 coingecko-fs-demo/
@@ -187,12 +188,15 @@ coingecko-fs-demo/
 │   ├── Dockerfile                # Multi-stage build (Node -> Nginx)
 │   └── package.json
 │
+├── docs/
+│   └── IMPLEMENTATION_PLAN.md    # Detailed technical architecture plan
 ├── docker-compose.yml            # Full-stack Docker deployment
 ├── .env.example                  # Environment configuration template
+├── pytest.ini                    # Pytest test configuration
 └── README.md
 ```
 
 ---
 
-## 📄 License
+## License
 This project is open-source and available under the [MIT License](LICENSE).
