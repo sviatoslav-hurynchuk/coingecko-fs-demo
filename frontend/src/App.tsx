@@ -6,7 +6,7 @@ import { ProjectCard } from './components/ProjectCard'
 import { ProjectTable } from './components/ProjectTable'
 import { LoadingState } from './components/LoadingState'
 import { useCrypto } from './hooks/useCrypto'
-import { AlertCircle, CheckCircle, Sliders, Sparkles } from 'lucide-react'
+import { AlertCircle, CheckCircle, Sliders, Layers } from 'lucide-react'
 
 export const App: React.FC = () => {
   const {
@@ -16,6 +16,8 @@ export const App: React.FC = () => {
     error,
     source,
     lastUpdated,
+    strictMode,
+    setStrictMode,
     searchQuery,
     setSearchQuery,
     userMaxFdv,
@@ -34,10 +36,11 @@ export const App: React.FC = () => {
     setUserMaxFdv(100_000_000)
     setSortBy('market_cap')
     setSortOrder('desc')
+    setStrictMode(true)
   }
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-gray-100 flex flex-col selection:bg-emerald-500 selection:text-gray-950">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-zinc-700 selection:text-white antialiased">
       <Header
         source={source}
         lastUpdated={lastUpdated}
@@ -45,40 +48,43 @@ export const App: React.FC = () => {
         onRefresh={refetch}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Top Banner & Backend Filter Criteria Badges */}
-        <div className="mb-6 bg-gradient-to-r from-emerald-950/40 via-gray-900/60 to-blue-950/40 border border-emerald-500/20 rounded-2xl p-4 sm:p-5">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-emerald-400" />
-              <h2 className="text-sm sm:text-base font-bold text-white">
-                Active Backend Filtering Rules
-              </h2>
-            </div>
-            <span className="text-xs text-gray-400">
-              Evaluated strictly on server-side CoinGecko feed
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Active Rules Info Bar */}
+        <div className="mb-5 bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+          <div className="flex items-center space-x-2">
+            <Layers className="w-4 h-4 text-zinc-400" />
+            <span className="text-xs font-semibold text-zinc-200">
+              {strictMode ? 'Backend Filter Rules (Active):' : 'Market Feed Mode:'}
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> MCap &gt; $0
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> preview_listing == true
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> Max Supply == Total Supply
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> FDV &lt; $100M
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> 24h Volume &gt; $50k
-            </span>
-            <span className="px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-300 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> TVL &gt; $50k
-            </span>
+          <div className="flex flex-wrap gap-1.5 text-[11px]">
+            {strictMode ? (
+              <>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> MCap &gt; 0
+                </span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> preview_listing == true
+                </span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> Max == Total Supply
+                </span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> FDV &lt; $100M
+                </span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> Volume &gt; $50k
+                </span>
+                <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-emerald-400" /> TVL &gt; $50k
+                </span>
+              </>
+            ) : (
+              <span className="px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-300 font-mono">
+                Displaying Live CoinGecko Market Assets (Relaxed Constraints)
+              </span>
+            )}
           </div>
         </div>
 
@@ -97,18 +103,20 @@ export const App: React.FC = () => {
           onSortOrderChange={setSortOrder}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          strictMode={strictMode}
+          onToggleStrictMode={setStrictMode}
           onReset={handleResetFilters}
         />
 
         {/* Content State: Error, Loading, Empty, or Projects */}
         {error ? (
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-8 text-center my-8">
-            <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-white mb-1">Failed to Load Projects</h3>
-            <p className="text-xs text-rose-300 mb-4 max-w-md mx-auto">{error}</p>
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-8 text-center my-6">
+            <AlertCircle className="w-8 h-8 text-rose-400 mx-auto mb-2" />
+            <h3 className="text-sm font-bold text-white mb-1">Failed to Load Projects</h3>
+            <p className="text-xs text-rose-300 mb-3 max-w-md mx-auto">{error}</p>
             <button
               onClick={refetch}
-              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white transition-colors cursor-pointer"
             >
               Retry Connection
             </button>
@@ -116,23 +124,23 @@ export const App: React.FC = () => {
         ) : loading ? (
           <LoadingState viewMode={viewMode} />
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-gray-800 bg-gray-900/40 p-12 text-center my-8">
-            <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-3 text-gray-400">
-              <Sliders className="w-6 h-6" />
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-10 text-center my-6">
+            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-2.5 text-zinc-400">
+              <Sliders className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-bold text-white mb-1">No Projects Found</h3>
-            <p className="text-xs text-gray-400 mb-4 max-w-md mx-auto">
-              No cryptocurrency projects matched your current filters. Try relaxing the FDV ceiling or clearing your search query.
+            <h3 className="text-sm font-bold text-zinc-200 mb-1">No Matching Projects</h3>
+            <p className="text-xs text-zinc-400 mb-3 max-w-md mx-auto">
+              No projects matched your active search query or FDV cutoff.
             </p>
             <button
               onClick={handleResetFilters}
-              className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs font-medium text-gray-200 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-200 transition-colors cursor-pointer"
             >
               Reset Search &amp; Filters
             </button>
           </div>
         ) : viewMode === 'cards' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
@@ -154,10 +162,8 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-800/80 bg-gray-950/60 py-6 text-center text-xs text-gray-500">
-        <p>
-          CoinGecko Full-Stack Crypto Screener &bull; Powered by FastAPI &amp; React &bull; Live Market Data
-        </p>
+      <footer className="border-t border-zinc-800/80 bg-zinc-950 py-4 text-center text-[11px] text-zinc-500 font-mono">
+        CoinGecko Full-Stack Screener &bull; FastAPI + React + TypeScript
       </footer>
     </div>
   )

@@ -17,43 +17,40 @@ export const Header: React.FC<HeaderProps> = ({
   const isLive = source.includes('live')
 
   return (
-    <header className="border-b border-gray-800 bg-gray-900/60 backdrop-blur-md sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <Activity className="w-6 h-6 text-gray-950 stroke-[2.5]" />
+          <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+            <Activity className="w-4 h-4 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-sm font-bold text-zinc-100 tracking-tight flex items-center gap-2">
               CoinGecko Screener
-              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                Full-Stack
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700 font-mono">
+                v1.0
               </span>
             </h1>
-            <p className="text-xs text-gray-400">
-              Filtered cryptocurrency market &amp; tokenomics explorer
-            </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700 text-xs">
-            <Database className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-gray-400">Source:</span>
+        <div className="flex items-center space-x-3">
+          <div className="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs">
+            <Database className="w-3 h-3 text-zinc-500" />
+            <span className="text-zinc-500 text-[11px]">Source:</span>
             <span
-              className={`font-semibold flex items-center gap-1 ${
+              className={`font-semibold text-[11px] flex items-center gap-1.5 ${
                 isLive ? 'text-emerald-400' : 'text-amber-400'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  isLive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  isLive ? 'bg-emerald-400' : 'bg-amber-400'
                 }`}
               />
               {source}
             </span>
             {lastUpdated && (
-              <span className="text-gray-500 text-[11px] border-l border-gray-700 pl-2">
+              <span className="text-zinc-500 text-[10px] border-l border-zinc-800 pl-2 font-mono">
                 {lastUpdated}
               </span>
             )}
@@ -62,10 +59,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 text-xs font-medium text-gray-200 transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs font-medium text-zinc-300 transition-colors cursor-pointer disabled:opacity-50"
             title="Refresh latest data"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
             <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>

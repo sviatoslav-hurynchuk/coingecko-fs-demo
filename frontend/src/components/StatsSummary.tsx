@@ -18,59 +18,53 @@ export const StatsSummary: React.FC<StatsSummaryProps> = ({ projects, totalRaw }
 
   const stats = [
     {
-      title: 'Matching Projects',
+      title: 'Matching Assets',
       value: `${projects.length} / ${totalRaw}`,
-      sub: 'Passed 6 Core Criteria',
+      sub: 'Passed Active Filters',
       icon: Coins,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500/20',
+      color: 'text-zinc-200',
     },
     {
       title: 'Average FDV',
       value: formatCurrency(avgFdv, true),
-      sub: 'Under $100M Ceiling',
+      sub: 'Valuation Average',
       icon: DollarSign,
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/20',
+      color: 'text-zinc-200',
     },
     {
-      title: 'Total 24h Volume',
+      title: '24h Total Volume',
       value: formatCurrency(totalVolume, true),
-      sub: 'Aggregate Trading Volume',
+      sub: 'Aggregate Liquidity',
       icon: BarChart3,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20',
+      color: 'text-zinc-200',
     },
     {
-      title: 'Total Value Locked (TVL)',
-      value: formatCurrency(totalTvl, true),
-      sub: 'DeFi Smart Contracts',
+      title: 'Total Value Locked',
+      value: totalTvl > 0 ? formatCurrency(totalTvl, true) : 'N/A',
+      sub: 'Smart Contract TVL',
       icon: Lock,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-      border: 'border-amber-500/20',
+      color: 'text-zinc-200',
     },
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
       {stats.map((stat, idx) => {
         const Icon = stat.icon
         return (
           <div
             key={idx}
-            className={`p-4 rounded-xl bg-gray-900/50 border ${stat.border} backdrop-blur-sm flex items-center space-x-4`}
+            className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 flex items-center space-x-3"
           >
-            <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
-              <Icon className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-zinc-800 border border-zinc-700/60 text-zinc-400">
+              <Icon className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-400">{stat.title}</p>
-              <p className="text-lg font-bold text-white tracking-tight">{stat.value}</p>
-              <p className="text-[11px] text-gray-500">{stat.sub}</p>
+              <p className="text-[11px] font-medium text-zinc-400">{stat.title}</p>
+              <p className={`text-base font-bold tracking-tight font-mono tabular-nums ${stat.color}`}>
+                {stat.value}
+              </p>
+              <p className="text-[10px] text-zinc-500">{stat.sub}</p>
             </div>
           </div>
         )

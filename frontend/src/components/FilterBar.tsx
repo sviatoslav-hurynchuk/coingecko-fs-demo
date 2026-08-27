@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, SlidersHorizontal, ArrowUpDown, LayoutGrid, Table, X, RotateCcw } from 'lucide-react'
+import { Search, SlidersHorizontal, ArrowUpDown, LayoutGrid, Table, X, RotateCcw, CheckCircle, Globe } from 'lucide-react'
 import type { SortField, SortOrder, ViewMode } from '../types/crypto'
 import { formatCurrency } from '../utils/formatters'
 
@@ -14,6 +14,8 @@ interface FilterBarProps {
   onSortOrderChange: (order: SortOrder) => void
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
+  strictMode: boolean
+  onToggleStrictMode: (val: boolean) => void
   onReset: () => void
 }
 
@@ -28,42 +30,77 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSortOrderChange,
   viewMode,
   onViewModeChange,
+  strictMode,
+  onToggleStrictMode,
   onReset,
 }) => {
-  const isFiltered = searchQuery.trim() !== '' || userMaxFdv < 100_000_000
+  const isFiltered = searchQuery.trim() !== '' || userMaxFdv < 100_000_000 || !strictMode
 
   return (
-    <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 mb-6 shadow-xl backdrop-blur-md">
-      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+    <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 mb-6 shadow-sm">
+      {/* Top Bar: Mode Toggle & Search */}
+      <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between pb-3.5 mb-3.5 border-b border-zinc-800/80">
         
-        {/* Search by partial name or symbol */}
+        {/* Mode Selector */}
+        <div className="flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800 shrink-0">
+          <button
+            onClick={() => onToggleStrictMode(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+              strictMode
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <CheckCircle className="w-3.5 h-3.5" />
+            <span>Strict 6 Rules (Assignment)</span>
+          </button>
+
+          <button
+            onClick={() => onToggleStrictMode(false)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+              !strictMode
+                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>All Live Market Coins</span>
+          </button>
+        </div>
+
+        {/* Partial Search Input */}
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by project name or symbol (e.g. eth, aero)..."
-            className="w-full bg-gray-950/70 border border-gray-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-gray-100 placeholder-gray-500 transition-all outline-none"
+            className="w-full bg-zinc-950 border border-zinc-700/80 focus:border-zinc-500 focus:ring-0 rounded-lg pl-9 pr-8 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 outline-none font-medium"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 cursor-pointer"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
+      </div>
 
-        {/* User-defined dynamic FDV threshold slider */}
-        <div className="flex-1 min-w-[280px] bg-gray-950/50 border border-gray-800/80 rounded-xl p-3">
-          <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-gray-400 font-medium flex items-center gap-1.5">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-blue-400" />
-              Max FDV Ceiling:
+      {/* Bottom Bar: FDV Slider, Sorting & View Switcher */}
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+        
+        {/* Fixed-width User-defined FDV slider container preventing layout jitter between $99M and $100M */}
+        <div className="w-full md:w-80 shrink-0 bg-zinc-950/80 border border-zinc-800 rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="text-zinc-400 font-medium flex items-center gap-1.5 text-[11px]">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" />
+              Max FDV:
             </span>
-            <span className="font-bold text-blue-400 font-mono">
+            {/* Fixed width with tabular figures guarantees identical box width from $1.00M to $100.00M */}
+            <span className="w-24 text-right font-bold text-zinc-200 font-mono text-xs tabular-nums">
               {formatCurrency(userMaxFdv, userMaxFdv >= 1_000_000)}
             </span>
           </div>
@@ -74,70 +111,70 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             step={1_000_000}
             value={userMaxFdv}
             onChange={(e) => onMaxFdvChange(Number(e.target.value))}
-            className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-300"
           />
-          <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+          <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono tabular-nums">
             <span>$1M</span>
             <span>$50M</span>
             <span>$100M</span>
           </div>
         </div>
 
-        {/* Sorting controls */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-950/70 border border-gray-700/80 rounded-xl px-3 py-2 text-xs">
-            <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 mr-2" />
+        {/* Controls: Sorting & View Switcher */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Sorting dropdown */}
+          <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs">
+            <ArrowUpDown className="w-3.5 h-3.5 text-zinc-500 mr-1.5" />
             <select
               value={sortBy}
               onChange={(e) => onSortByChange(e.target.value as SortField)}
-              className="bg-transparent text-gray-200 font-medium outline-none cursor-pointer pr-2"
+              className="bg-transparent text-zinc-200 font-medium outline-none cursor-pointer pr-1"
             >
-              <option value="market_cap" className="bg-gray-900 text-gray-200">
+              <option value="market_cap" className="bg-zinc-900 text-zinc-200">
                 Market Cap
               </option>
-              <option value="total_volume" className="bg-gray-900 text-gray-200">
+              <option value="total_volume" className="bg-zinc-900 text-zinc-200">
                 24h Volume
               </option>
-              <option value="fully_diluted_valuation" className="bg-gray-900 text-gray-200">
+              <option value="fully_diluted_valuation" className="bg-zinc-900 text-zinc-200">
                 FDV
               </option>
-              <option value="name" className="bg-gray-900 text-gray-200">
+              <option value="name" className="bg-zinc-900 text-zinc-200">
                 Project Name
               </option>
             </select>
 
             <button
               onClick={() => onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="ml-2 px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-[11px] transition-colors cursor-pointer"
-              title={`Toggle sort order (current: ${sortOrder.toUpperCase()})`}
+              className="ml-1.5 px-1.5 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold text-[10px] cursor-pointer"
             >
               {sortOrder === 'desc' ? 'DESC ↓' : 'ASC ↑'}
             </button>
           </div>
 
-          {/* View mode toggle (Cards vs Table) */}
-          <div className="flex items-center bg-gray-950/70 border border-gray-700/80 rounded-xl p-1">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded-lg p-1">
             <button
               onClick={() => onViewModeChange('cards')}
-              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`p-1.5 rounded transition-all cursor-pointer ${
                 viewMode === 'cards'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-zinc-800 text-zinc-100 font-semibold'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              title="Card Grid View"
+              title="Card View"
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onViewModeChange('table')}
-              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`p-1.5 rounded transition-all cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-zinc-800 text-zinc-100 font-semibold'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
-              title="Tabular View"
+              title="Table View"
             >
-              <Table className="w-4 h-4" />
+              <Table className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -145,11 +182,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {isFiltered && (
             <button
               onClick={onReset}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 border border-gray-700 text-xs font-medium text-gray-300 transition-colors cursor-pointer"
-              title="Reset all filters"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition-colors cursor-pointer"
+              title="Reset search and filters"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Reset</span>
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
             </button>
           )}
         </div>

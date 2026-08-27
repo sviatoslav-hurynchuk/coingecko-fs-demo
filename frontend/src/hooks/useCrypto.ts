@@ -9,6 +9,9 @@ export function useCrypto() {
   const [lastUpdated, setLastUpdated] = useState<string>('')
   const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown>>({})
 
+  // Strict Assignment Mode filters by preview_listing & equal supply; relaxing shows all live market coins.
+  const [strictMode, setStrictMode] = useState<boolean>(true)
+
   // Client-side control states
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [userMaxFdv, setUserMaxFdv] = useState<number>(100_000_000)
@@ -16,12 +19,12 @@ export function useCrypto() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [viewMode, setViewMode] = useState<ViewMode>('cards')
 
-  const fetchProjects = useCallback(async (forceRefresh: boolean = false) => {
+  const fetchProjects = useCallback(async (forceRefresh: boolean = false, isStrict: boolean = strictMode) => {
     setLoading(true)
     setError(null)
     try {
-      // Relative endpoint path routes through Vite dev proxy in development and Nginx proxy in production.
-      const url = `/api/projects?force_refresh=${forceRefresh}`
+      // Query parameters dynamically instruct backend whether to apply strict preview/supply constraints or broad market feed.
+      const url = `/api/projects?force_refresh=${forceRefresh}&preview_only=${isStrict}&require_equal_supply=${isStrict}&min_tvl=${isStrict ? 50000 : 0}`
       const res = await fetch(url)
       if (!res.ok) {
         throw new Error(`Server returned status ${res.status}: ${res.statusText}`)
@@ -37,11 +40,11 @@ export function useCrypto() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [strictMode])
 
   useEffect(() => {
-    fetchProjects(false)
-  }, [fetchProjects])
+    fetchProjects(false, strictMode)
+  }, [fetchProjects, strictMode])
 
   // Instant client-side filtering avoids extra roundtrips while manipulating sliders or typing queries.
   const filteredAndSortedProjects = useMemo(() => {
@@ -111,6 +114,8 @@ export function useCrypto() {
     source,
     lastUpdated,
     appliedFilters,
+    strictMode,
+    setStrictMode,
     searchQuery,
     setSearchQuery,
     userMaxFdv,
@@ -121,6 +126,6 @@ export function useCrypto() {
     setSortOrder,
     viewMode,
     setViewMode,
-    refetch: () => fetchProjects(true),
+    refetch: () => fetchProjects(true, strictMode),
   }
 }
