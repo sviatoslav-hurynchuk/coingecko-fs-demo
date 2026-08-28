@@ -22,22 +22,23 @@ async def health_check():
 @router.get("/projects", response_model=ProjectListResponse)
 async def get_filtered_projects(
     search: Optional[str] = Query(None, description="Partial project name or symbol match (e.g. eth)"),
-    max_fdv: Optional[float] = Query(100_000_000.0, description="Maximum Fully Diluted Valuation in USD"),
-    min_volume: Optional[float] = Query(50_000.0, description="Minimum 24h trading volume in USD"),
-    min_tvl: Optional[float] = Query(50_000.0, description="Minimum Total Value Locked in USD"),
+    max_fdv: Optional[float] = Query(None, description="Maximum Fully Diluted Valuation in USD"),
+    min_volume: Optional[float] = Query(None, description="Minimum 24h trading volume in USD"),
+    min_tvl: Optional[float] = Query(None, description="Minimum Total Value Locked in USD"),
     preview_only: bool = Query(True, description="Filter by preview_listing == True"),
     require_equal_supply: bool = Query(True, description="Require max_supply == total_supply"),
     force_refresh: bool = Query(False, description="Bypass server-side TTL cache")
 ):
     projects, source = await coingecko_service.fetch_projects(force_refresh=force_refresh)
 
+    # Dynamic defaults apply strict $100M ceiling and $50k thresholds for preview assignment mode, but uncap live market feeds.
     criteria = FilterCriteria(
         min_market_cap=0.0,
         preview_listing=True if preview_only else None,
         require_max_equals_total_supply=require_equal_supply,
-        max_fdv=max_fdv if max_fdv is not None else 100_000_000.0,
-        min_volume=min_volume if min_volume is not None else 50_000.0,
-        min_tvl=min_tvl if min_tvl is not None else 50_000.0
+        max_fdv=max_fdv if max_fdv is not None else (100_000_000.0 if preview_only else None),
+        min_volume=min_volume if min_volume is not None else (50_000.0 if preview_only else 0.0),
+        min_tvl=min_tvl if min_tvl is not None else (50_000.0 if preview_only else 0.0)
     )
 
     filtered = CryptoFilterService.apply_filters(
@@ -53,7 +54,7 @@ async def get_filtered_projects(
             "min_market_cap": "> 0",
             "preview_listing": preview_only,
             "max_equals_total_supply": require_equal_supply,
-            "max_fdv": f"< ${criteria.max_fdv:,.2f}",
+            "max_fdv": f"< ${criteria.max_fdv:,.2f}" if criteria.max_fdv is not None else "unlimited",
             "min_volume": f"> ${criteria.min_volume:,.2f}",
             "min_tvl": f"> ${criteria.min_tvl:,.2f}",
             "search_query": search

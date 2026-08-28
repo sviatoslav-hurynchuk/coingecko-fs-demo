@@ -25,7 +25,7 @@ class FilterCriteria(BaseModel):
     min_market_cap: float = 0.0
     preview_listing: Optional[bool] = True
     require_max_equals_total_supply: bool = True
-    max_fdv: float = 100_000_000.0
+    max_fdv: Optional[float] = 100_000_000.0
     min_volume: float = 50_000.0
     min_tvl: float = 50_000.0
 

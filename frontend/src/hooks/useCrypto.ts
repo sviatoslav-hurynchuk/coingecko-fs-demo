@@ -9,7 +9,7 @@ export function useCrypto() {
   const [lastUpdated, setLastUpdated] = useState<string>('')
   const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown>>({})
 
-  // Strict Assignment Mode filters by preview_listing & equal supply; relaxing shows all live market coins.
+  // Strict Assignment Mode filters by preview_listing & equal supply; relaxing shows all 100+ live CoinGecko market coins.
   const [strictMode, setStrictMode] = useState<boolean>(true)
 
   // Client-side control states
@@ -23,8 +23,11 @@ export function useCrypto() {
     setLoading(true)
     setError(null)
     try {
-      // Query parameters dynamically instruct backend whether to apply strict preview/supply constraints or broad market feed.
-      const url = `/api/projects?force_refresh=${forceRefresh}&preview_only=${isStrict}&require_equal_supply=${isStrict}&min_tvl=${isStrict ? 50000 : 0}`
+      // Query parameters instruct backend whether to apply strict assignment constraints or return live market data.
+      const url = isStrict
+        ? `/api/projects?force_refresh=${forceRefresh}&preview_only=true&require_equal_supply=true&min_tvl=50000&max_fdv=100000000`
+        : `/api/projects?force_refresh=${forceRefresh}&preview_only=false&require_equal_supply=false&min_tvl=0&min_volume=0`
+
       const res = await fetch(url)
       if (!res.ok) {
         throw new Error(`Server returned status ${res.status}: ${res.statusText}`)
@@ -65,8 +68,11 @@ export function useCrypto() {
         project.fully_diluted_valuation ??
         (project.max_supply ? project.current_price * project.max_supply : (project.total_supply ? project.current_price * project.total_supply : 0))
 
-      if (effectiveFdv > userMaxFdv) {
-        return false
+      // In relaxed Live mode, allow large cap assets like Bitcoin/Ethereum unless the user explicitly lowers the slider below 100M.
+      if (strictMode || userMaxFdv < 100_000_000) {
+        if (effectiveFdv > userMaxFdv) {
+          return false
+        }
       }
 
       return true
@@ -104,7 +110,7 @@ export function useCrypto() {
       const numB = Number(valB) || 0
       return sortOrder === 'asc' ? numA - numB : numB - numA
     })
-  }, [rawProjects, searchQuery, userMaxFdv, sortBy, sortOrder])
+  }, [rawProjects, searchQuery, userMaxFdv, sortBy, sortOrder, strictMode])
 
   return {
     projects: filteredAndSortedProjects,

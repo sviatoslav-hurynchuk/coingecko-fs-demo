@@ -31,16 +31,17 @@ class CryptoFilterService:
         elif fdv is None and project.total_supply is not None:
             fdv = project.current_price * project.total_supply
 
-        if fdv is None or fdv >= criteria.max_fdv:
+        if criteria.max_fdv is not None and fdv is not None and fdv >= criteria.max_fdv:
             return False, f"FDV ({fdv}) must be < {criteria.max_fdv}"
 
         # Low-volume tokens exhibit extreme slippage and unreliable spot pricing.
-        if project.total_volume <= criteria.min_volume:
+        if criteria.min_volume > 0 and project.total_volume <= criteria.min_volume:
             return False, f"Volume ({project.total_volume}) must be > {criteria.min_volume}"
 
-        # DeFi protocol verification requires on-chain locked assets.
-        if project.tvl is None or project.tvl <= criteria.min_tvl:
-            return False, f"TVL ({project.tvl}) must be > {criteria.min_tvl}"
+        # DeFi protocol verification requires on-chain locked assets only when a positive threshold is requested.
+        if criteria.min_tvl > 0:
+            if project.tvl is None or project.tvl <= criteria.min_tvl:
+                return False, f"TVL ({project.tvl}) must be > {criteria.min_tvl}"
 
         return True, None
 
